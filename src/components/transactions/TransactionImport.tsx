@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Upload, FileText, AlertCircle, CheckCircle, X, Download } from 'lucide-react';
+import { Upload, FileText, AlertCircle, CheckCircle, X, Download, ArrowRight, Settings } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -41,15 +41,20 @@ interface TransactionImportProps {
   open: boolean;
 }
 
+type ImportStep = 'upload' | 'preview' | 'integration' | 'processing';
+
 const TransactionImport: React.FC<TransactionImportProps> = ({ accountId, onClose, open }) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [currentStep, setCurrentStep] = useState<ImportStep>('upload');
   const [uploading, setUploading] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [importing, setImporting] = useState(false);
   const [progress, setProgress] = useState(0);
   const [fileName, setFileName] = useState('');
+  const [fileContent, setFileContent] = useState('');
+  const [integrationType, setIntegrationType] = useState<'openai' | 'manual'>('openai');
   const [parsedTransactions, setParsedTransactions] = useState<ParsedTransaction[]>([]);
   const [selectedTransactions, setSelectedTransactions] = useState<Set<number>>(new Set());
 
@@ -62,19 +67,53 @@ const TransactionImport: React.FC<TransactionImportProps> = ({ accountId, onClos
     setFileName(file.name);
 
     try {
-      // Read file content
-      const fileContent = await readFileContent(file);
-      setProgress(30);
+      // Read file content only
+      const content = await readFileContent(file);
+      setFileContent(content);
+      setProgress(100);
+      setCurrentStep('preview');
 
-      // Process with AI
-      setProcessing(true);
+      toast({
+        title: "File Uploaded",
+        description: `Successfully uploaded ${file.name}`,
+      });
+
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast({
+        title: "Upload Failed",
+        description: error instanceof Error ? error.message : "Failed to read file",
+        variant: "destructive",
+      });
+      setProgress(0);
+    } finally {
+      setUploading(false);
+    }
+
+    // Reset file input
+    event.target.value = '';
+  }, [user, toast]);
+
+  const handleNext = () => {
+    setCurrentStep('integration');
+  };
+
+  const handleProcessFile = async () => {
+    if (!fileContent) return;
+
+    setProcessing(true);
+    setCurrentStep('processing');
+    setProgress(0);
+
+    try {
       setProgress(50);
 
       const { data, error } = await supabase.functions.invoke('process-transaction-import', {
         body: {
           fileContent,
-          fileName: file.name,
-          accountId
+          fileName,
+          accountId,
+          integrationType
         }
       });
 
@@ -91,26 +130,23 @@ const TransactionImport: React.FC<TransactionImportProps> = ({ accountId, onClos
 
       toast({
         title: "Success",
-        description: `Parsed ${data.count} transactions from ${file.name}`,
+        description: `Parsed ${data.count} transactions from ${fileName}`,
       });
 
     } catch (error) {
-      console.error('Upload error:', error);
+      console.error('Processing error:', error);
       toast({
-        title: "Upload Failed",
+        title: "Processing Failed",
         description: error instanceof Error ? error.message : "Failed to process file",
         variant: "destructive",
       });
       setParsedTransactions([]);
       setProgress(0);
+      setCurrentStep('integration');
     } finally {
-      setUploading(false);
       setProcessing(false);
     }
-
-    // Reset file input
-    event.target.value = '';
-  }, [user, accountId, toast]);
+  };
 
   const readFileContent = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -212,8 +248,23 @@ const TransactionImport: React.FC<TransactionImportProps> = ({ accountId, onClos
     }).format(amount);
   };
 
+  const handleClose = () => {
+    // Reset all state when closing
+    setCurrentStep('upload');
+    setUploading(false);
+    setProcessing(false);
+    setImporting(false);
+    setProgress(0);
+    setFileName('');
+    setFileContent('');
+    setIntegrationType('openai');
+    setParsedTransactions([]);
+    setSelectedTransactions(new Set());
+    onClose();
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -226,43 +277,160 @@ const TransactionImport: React.FC<TransactionImportProps> = ({ accountId, onClos
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto space-y-6">
-          {/* File Upload */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Upload Bank Statement</CardTitle>
-              <CardDescription>
-                Supported formats: CSV, PDF. The AI will automatically parse and categorize your transactions.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
-                <input
-                  type="file"
-                  accept=".csv,.pdf,.txt"
-                  onChange={handleFileUpload}
-                  disabled={uploading || processing}
-                  className="hidden"
-                  id="file-upload"
-                />
-                <label
-                  htmlFor="file-upload"
-                  className={`cursor-pointer inline-flex flex-col items-center gap-4 ${
-                    uploading || processing ? 'opacity-50 cursor-not-allowed' : ''
-                  }`}
-                >
-                  <FileText className="h-12 w-12 text-muted-foreground" />
-                  <div>
-                    <p className="text-sm font-medium">
-                      {uploading ? 'Uploading...' : processing ? 'Processing...' : 'Click to upload file'}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      CSV, PDF, or TXT files up to 10MB
-                    </p>
-                  </div>
-                </label>
-              </div>
+          {/* Upload Step */}
+          {currentStep === 'upload' && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Upload Bank Statement</CardTitle>
+                <CardDescription>
+                  Supported formats: CSV, PDF. Upload your file to get started.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
+                  <input
+                    type="file"
+                    accept=".csv,.pdf,.txt"
+                    onChange={handleFileUpload}
+                    disabled={uploading}
+                    className="hidden"
+                    id="file-upload"
+                  />
+                  <label
+                    htmlFor="file-upload"
+                    className={`cursor-pointer inline-flex flex-col items-center gap-4 ${
+                      uploading ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                  >
+                    <FileText className="h-12 w-12 text-muted-foreground" />
+                    <div>
+                      <p className="text-sm font-medium">
+                        {uploading ? 'Uploading...' : 'Click to upload file'}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        CSV, PDF, or TXT files up to 10MB
+                      </p>
+                    </div>
+                  </label>
+                </div>
 
-              {(uploading || processing) && (
+                {uploading && (
+                  <div className="mt-4 space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span>{fileName}</span>
+                      <span>{progress}%</span>
+                    </div>
+                    <Progress value={progress} className="w-full" />
+                    <p className="text-xs text-muted-foreground">Uploading file...</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Preview Step */}
+          {currentStep === 'preview' && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <CheckCircle className="h-5 w-5 text-green-500" />
+                  File Preview - {fileName}
+                </CardTitle>
+                <CardDescription>
+                  Review your file content below. Click "Next" when you're satisfied with the upload.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-muted rounded-lg p-4 max-h-96 overflow-y-auto">
+                  <pre className="text-sm whitespace-pre-wrap font-mono">
+                    {fileContent.length > 2000 
+                      ? `${fileContent.substring(0, 2000)}...\n\n[Content truncated - showing first 2000 characters]`
+                      : fileContent
+                    }
+                  </pre>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Integration Step */}
+          {currentStep === 'integration' && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Settings className="h-5 w-5" />
+                  Choose Integration Type
+                </CardTitle>
+                <CardDescription>
+                  Select how you want to process your transactions.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 gap-4">
+                  <div 
+                    className={`border-2 rounded-lg p-4 cursor-pointer transition-colors ${
+                      integrationType === 'openai' 
+                        ? 'border-primary bg-primary/5' 
+                        : 'border-border hover:border-primary/50'
+                    }`}
+                    onClick={() => setIntegrationType('openai')}
+                  >
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="radio"
+                        checked={integrationType === 'openai'}
+                        onChange={() => setIntegrationType('openai')}
+                        className="w-4 h-4"
+                      />
+                      <div>
+                        <h3 className="font-medium">AI Processing (OpenAI)</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Automatically parse and categorize transactions using AI. Requires OpenAI API key.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div 
+                    className={`border-2 rounded-lg p-4 cursor-pointer transition-colors ${
+                      integrationType === 'manual' 
+                        ? 'border-primary bg-primary/5' 
+                        : 'border-border hover:border-primary/50'
+                    }`}
+                    onClick={() => setIntegrationType('manual')}
+                  >
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="radio"
+                        checked={integrationType === 'manual'}
+                        onChange={() => setIntegrationType('manual')}
+                        className="w-4 h-4"
+                      />
+                      <div>
+                        <h3 className="font-medium">Manual Processing</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Parse transactions using basic rules. No AI processing required.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Processing Step */}
+          {currentStep === 'processing' && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Processing Transactions</CardTitle>
+                <CardDescription>
+                  {integrationType === 'openai' 
+                    ? 'AI is parsing and categorizing your transactions...' 
+                    : 'Processing transactions with basic rules...'}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
                 <div className="mt-4 space-y-2">
                   <div className="flex justify-between text-sm">
                     <span>{fileName}</span>
@@ -270,12 +438,12 @@ const TransactionImport: React.FC<TransactionImportProps> = ({ accountId, onClos
                   </div>
                   <Progress value={progress} className="w-full" />
                   <p className="text-xs text-muted-foreground">
-                    {uploading ? 'Uploading file...' : 'AI is parsing your transactions...'}
+                    {processing ? 'Processing transactions...' : 'Complete!'}
                   </p>
                 </div>
-              )}
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Parsed Transactions */}
           {parsedTransactions.length > 0 && (
@@ -366,9 +534,22 @@ const TransactionImport: React.FC<TransactionImportProps> = ({ accountId, onClos
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={importing}>
+          <Button variant="outline" onClick={onClose} disabled={importing || processing}>
             Cancel
           </Button>
+          
+          {currentStep === 'preview' && (
+            <Button onClick={handleNext} className="flex items-center gap-2">
+              Next <ArrowRight className="h-4 w-4" />
+            </Button>
+          )}
+          
+          {currentStep === 'integration' && (
+            <Button onClick={handleProcessFile} disabled={processing}>
+              {processing ? 'Processing...' : 'Process File'}
+            </Button>
+          )}
+          
           {parsedTransactions.length > 0 && (
             <Button onClick={handleImportTransactions} disabled={selectedTransactions.size === 0 || importing}>
               {importing ? 'Importing...' : `Import ${selectedTransactions.size} Transactions`}
