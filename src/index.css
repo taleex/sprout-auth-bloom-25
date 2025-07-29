@@ -1,0 +1,245 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Enhanced light theme design tokens */
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 142 76% 36%;
+    --primary-foreground: 355 100% 97%;
+
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 84% 4.9%;
+
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 142 86% 28%;
+    --accent-foreground: 355 100% 97%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 142 76% 36%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 222.2 84% 4.9%;
+    --sidebar-primary: 142 76% 36%;
+    --sidebar-primary-foreground: 355 100% 97%;
+    --sidebar-accent: 210 40% 96%;
+    --sidebar-accent-foreground: 222.2 84% 4.9%;
+    --sidebar-border: 214.3 31.8% 91.4%;
+    --sidebar-ring: 142 76% 36%;
+
+    /* Enhanced semantic tokens */
+    --success: 142 76% 36%;
+    --success-foreground: 355 100% 97%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 222.2 84% 4.9%;
+    --info: 221 83% 53%;
+    --info-foreground: 210 40% 98%;
+    
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+    --gradient-card: linear-gradient(145deg, hsl(var(--card)), hsl(var(--muted) / 0.3));
+    
+    /* Enhanced shadows */
+    --shadow-card: 0 4px 6px -1px hsl(var(--foreground) / 0.1), 0 2px 4px -1px hsl(var(--foreground) / 0.06);
+    --shadow-hover: 0 10px 15px -3px hsl(var(--foreground) / 0.1), 0 4px 6px -2px hsl(var(--foreground) / 0.05);
+    
+    /* Spacing system */
+    --space-xs: 0.25rem;
+    --space-sm: 0.5rem;
+    --space-md: 1rem;
+    --space-lg: 1.5rem;
+    --space-xl: 2rem;
+    --space-2xl: 3rem;
+
+    /* FinApp custom design tokens */
+    --finapp-accent: 142 76% 36%;
+    --finapp-background: 0 0% 100%;
+    --finapp-error: 0 84.2% 60.2%;
+    --finapp-success: 142 76% 36%;
+    --finapp-warning: 38 92% 50%;
+    --finapp-muted: 210 40% 96%;
+    --finapp-border: 214.3 31.8% 91.4%;
+    --finapp-foreground: 222.2 84% 4.9%;
+  }
+
+  .dark {
+    /* Enhanced dark theme design tokens */
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 142 76% 36%;
+    --primary-foreground: 355 100% 97%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 142 86% 28%;
+    --accent-foreground: 355 100% 97%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 142 76% 36%;
+
+    --sidebar-background: 222.2 84% 4.9%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 142 76% 36%;
+    --sidebar-primary-foreground: 355 100% 97%;
+    --sidebar-accent: 217.2 32.6% 17.5%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 217.2 32.6% 17.5%;
+    --sidebar-ring: 142 76% 36%;
+
+    /* Enhanced semantic tokens for dark mode */
+    --success: 142 76% 36%;
+    --success-foreground: 355 100% 97%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 222.2 84% 4.9%;
+    --info: 221 83% 53%;
+    --info-foreground: 210 40% 98%;
+    
+    /* Dark mode gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+    --gradient-card: linear-gradient(145deg, hsl(var(--card)), hsl(var(--muted) / 0.5));
+    
+    /* Dark mode shadows */
+    --shadow-card: 0 4px 6px -1px hsl(0 0% 0% / 0.3), 0 2px 4px -1px hsl(0 0% 0% / 0.2);
+    --shadow-hover: 0 10px 15px -3px hsl(0 0% 0% / 0.4), 0 4px 6px -2px hsl(0 0% 0% / 0.3);
+
+    /* FinApp dark theme tokens */
+    --finapp-accent: 142 76% 36%;
+    --finapp-background: 222.2 84% 4.9%;
+    --finapp-error: 0 62.8% 30.6%;
+    --finapp-success: 142 76% 36%;
+    --finapp-warning: 38 92% 50%;
+    --finapp-muted: 217.2 32.6% 17.5%;
+    --finapp-border: 217.2 32.6% 17.5%;
+    --finapp-foreground: 210 40% 98%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "cv11", "ss01";
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer components {
+  /* Enhanced component styles */
+  .card-hover {
+    @apply transition-all duration-200 hover:shadow-[var(--shadow-hover)] hover:scale-[1.02];
+  }
+
+  .gradient-card {
+    background: var(--gradient-card);
+  }
+
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+
+  .status-indicator {
+    @apply inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full;
+  }
+
+  .status-success {
+    @apply bg-success/10 text-success border border-success/20;
+  }
+
+  .status-warning {
+    @apply bg-warning/10 text-warning-foreground border border-warning/20;
+  }
+
+  .status-info {
+    @apply bg-info/10 text-info-foreground border border-info/20;
+  }
+}
+
+/* Clean Auth Styles */
+.auth-container {
+  @apply min-h-screen bg-background flex flex-col items-center justify-center p-4;
+}
+
+.auth-form-container {
+  @apply w-full max-w-sm space-y-6;
+}
+
+.auth-title {
+  @apply text-2xl font-semibold mb-6 text-center text-foreground;
+}
+
+.auth-btn-primary {
+  @apply w-full h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-xl transition-colors duration-200;
+}
+
+.auth-btn-secondary {
+  @apply w-full h-11 bg-card hover:bg-muted border border-border hover:border-border/80 text-foreground font-medium rounded-xl transition-all duration-200;
+}
+
+.auth-social-btn {
+  @apply w-full h-11 border border-border hover:border-border/80 bg-card hover:bg-muted text-foreground font-medium rounded-xl transition-all duration-200 flex items-center justify-center gap-3;
+}
+
+.auth-link {
+  @apply text-sm text-foreground hover:text-accent-foreground font-medium transition-colors underline underline-offset-4;
+}
+
+.auth-input {
+  @apply h-11 rounded-xl border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring transition-all duration-200;
+}
+
+/* Loading spinner animation */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Enhanced focus states */
+.focus-enhanced:focus {
+  @apply ring-2 ring-black ring-offset-2 border-black;
+}
+
+/* Subtle hover effects */
+.hover-lift:hover {
+  @apply transform -translate-y-0.5 shadow-lg;
+}
