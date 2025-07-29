@@ -5,7 +5,7 @@ import Navbar from '@/components/layout/Navbar';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { fetchTransactions } from '@/lib/api';
 import { useAccountsData } from '@/hooks/useAccountsData';
-import { useAuth } from '@/contexts/SimpleAuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Plus, Search, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

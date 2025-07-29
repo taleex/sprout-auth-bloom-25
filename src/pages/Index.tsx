@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useAuth } from '@/contexts/SimpleAuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Link } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
 import BalanceSummary from '@/components/dashboard/BalanceSummary';

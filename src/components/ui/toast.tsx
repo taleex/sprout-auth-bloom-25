@@ -24,14 +24,14 @@ const ToastViewport = React.forwardRef<
 ToastViewport.displayName = ToastPrimitives.Viewport.displayName
 
 const toastVariants = cva(
-  "group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-2xl border-0 bg-white p-6 shadow-lg ring-1 ring-black/5 transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full data-[state=open]:sm:slide-in-from-top-full backdrop-blur-sm hover:shadow-xl transform hover:-translate-y-1 duration-300",
+  "group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-2xl border p-6 bg-card text-card-foreground shadow-lg transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full data-[state=open]:sm:slide-in-from-top-full backdrop-blur-sm hover:shadow-xl transform hover:-translate-y-1 duration-300",
   {
     variants: {
       variant: {
-        default: "bg-white text-gray-900 ring-gray-200/40",
-        destructive: "bg-gradient-to-r from-red-50 to-pink-50 text-red-900 ring-red-200/60",
-        success: "bg-gradient-to-r from-emerald-50 to-green-50 text-emerald-900 ring-emerald-200/60",
-        info: "bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-900 ring-blue-200/60",
+        default: "bg-card text-card-foreground border-border",
+        destructive: "bg-destructive/10 text-destructive border-destructive/20",
+        success: "bg-success/10 text-success border-success/20",
+        info: "bg-info/10 text-info-foreground border-info/20",
       },
     },
     defaultVariants: {

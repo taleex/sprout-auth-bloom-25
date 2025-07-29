@@ -6,7 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { Upload, FileText, AlertCircle, CheckCircle, X, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/SimpleAuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { useQueryClient } from '@tanstack/react-query';
 import {
   Dialog,
