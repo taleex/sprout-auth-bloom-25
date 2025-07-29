@@ -123,9 +123,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signOut = useCallback(async () => {
     try {
-      await supabase.auth.signOut();
+      // Clean up auth state first
+      setUser(null);
+      setSession(null);
+      
+      // Clean up localStorage
+      Object.keys(localStorage).forEach((key) => {
+        if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
+          localStorage.removeItem(key);
+        }
+      });
+      
+      // Clean up sessionStorage
+      Object.keys(sessionStorage || {}).forEach((key) => {
+        if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
+          sessionStorage.removeItem(key);
+        }
+      });
+      
+      // Sign out from Supabase
+      await supabase.auth.signOut({ scope: 'global' });
+      
+      // Force page reload for clean state
+      window.location.href = '/auth?view=login';
     } catch (error) {
       console.error('Error signing out:', error);
+      // Force reload even if signOut failed
+      window.location.href = '/auth?view=login';
     }
   }, []);
 
